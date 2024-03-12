@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain, dialog } = require("electron/main");
+const { app, BrowserWindow, ipcMain, dialog, Menu } = require("electron/main");
 const path = require("node:path");
 
 const handleFileOpen = async () => {
@@ -23,7 +23,31 @@ const createWindow = () => {
 
   ipcMain.handle("dialog:openFile", handleFileOpen);
 
+  ipcMain.on("counter-value", (_event, value) => {
+    console.log(value);
+  });
+
+  const menu = Menu.buildFromTemplate([
+    {
+      label: app.name,
+      submenu: [
+        {
+          label: "Increment",
+          click: () => mainWindow.webContents.send("update-counter", 1),
+        },
+        {
+          label: "Decrement",
+          click: () => mainWindow.webContents.send("update-counter", -1),
+        },
+      ],
+    },
+  ]);
+  Menu.setApplicationMenu(menu);
+
   mainWindow.loadFile("index.html");
+
+  // Open the DevTools
+  mainWindow.webContents.openDevTools();
 };
 
 app.whenReady().then(() => {
