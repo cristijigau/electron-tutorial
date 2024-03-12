@@ -1,5 +1,12 @@
-const { app, BrowserWindow, ipcMain } = require("electron/main");
+const { app, BrowserWindow, ipcMain, dialog } = require("electron/main");
 const path = require("node:path");
+
+const handleFileOpen = async () => {
+  const { canceled, filePaths } = await dialog.showOpenDialog();
+  if (!canceled) {
+    return filePaths[0];
+  }
+};
 
 const createWindow = () => {
   const mainWindow = new BrowserWindow({
@@ -13,6 +20,8 @@ const createWindow = () => {
     const win = BrowserWindow.fromWebContents(webContents);
     win.setTitle(title);
   });
+
+  ipcMain.handle("dialog:openFile", handleFileOpen);
 
   mainWindow.loadFile("index.html");
 };
